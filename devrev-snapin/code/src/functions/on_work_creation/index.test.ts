@@ -54,12 +54,11 @@ describe('Example Index Test file', () => {
         },
       ],
     };
-    const response = await handleEvent(event);
+    // Pass null or an empty string as the query argument
+    const response = await handleEvent(event, ''); // or null
     expect(response).toEqual(expectedResp);
   });
-});
 
-describe('Example Index Test file', () => {
   it('Testing the method', () => {
     testRunner({
       fixturePath: 'on_work_created_event.json',
