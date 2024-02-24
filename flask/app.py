@@ -1,11 +1,9 @@
 from flask import Flask, json, jsonify, request
 import requests
+from flask_cors import CORS
 
 app = Flask(__name__)
-import openai
-OPENAI_API_KEY="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"
-openai.api_key=OPENAI_API_KEY
-print(openai.api_key)
+CORS(app)
 
 RAPIDAPI_KEY = '9d6e6bf9ddmsh8422d38c504cb8fp1b8683jsn71ba8eefbe72'
 RAPIDAPI_HOST = 'twitter154.p.rapidapi.com'
@@ -42,7 +40,24 @@ def analyze_sentiment(tweets):
 
     else:
         return 'Failed to analyze sentiment'
-    
+
+def identify_feedback(tweet_texts):
+    feedback_types = {
+        'Feature Request': 0,
+        'Bug Report': 0,
+        'General Feedback': 0,
+        'No Feedback': 0
+    }
+    for text in tweet_texts:
+        if 'feature request' in text.lower():
+            feedback_types['Feature Request'] += 1
+        elif 'bug report' in text.lower():
+            feedback_types['Bug Report'] += 1
+        elif 'general feedback' in text.lower():
+            feedback_types['General Feedback'] += 1
+        else:
+            feedback_types['No Feedback'] += 1
+    return feedback_types
 
 @app.route('/search', methods=['POST'])
 def search_tweets():
@@ -53,8 +68,8 @@ def search_tweets():
         'X-RapidAPI-Host': RAPIDAPI_HOST
     }
     data = request.json
-    query = data.get('query', '')  # Get query (optional)
-    limit = min(data.get('limit', 10), 100)  # Get limit with max value of 100
+    query = data.get('query', '') 
+    limit = min(data.get('limit', 10), 100)  
     section = data.get('section', 'top')
     language = data.get('language', 'en')
     min_likes = data.get('min_likes', 0)
@@ -83,11 +98,12 @@ def search_tweets():
     response = requests.post(url, headers=headers, json=payload)
     if response.status_code == 200:
         tweets = response.json().get('results', [])
-        print(analyze_sentiment(tweets))
-        return jsonify([extract_text_from_tweet(tweet) for tweet in tweets])
+        sentiment = analyze_sentiment(tweets)
+        tweet_texts = [extract_text_from_tweet(tweet) for tweet in tweets]
+        feedback = identify_feedback(tweet_texts)
+        return jsonify({'tweets': tweet_texts, 'sentiment': sentiment, 'feedback': feedback})
     else:
         return jsonify({'error': 'Failed to fetch tweets'}), response.status_code
 
 if __name__ == '__main__':
     app.run(debug=True)
-
