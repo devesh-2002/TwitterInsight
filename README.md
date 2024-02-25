@@ -11,13 +11,15 @@ TwitterInsight is a web application that provides insights and analysis on tweet
 
 
 ## Technologies Used
-1. DevRev Platform : Used for Integration of Snap-Ins.
-2. Flask: Web framework for building the backend server.
-3. MongoDB: NoSQL database for storing tweet data and analysis results.
-4. OpenAI: AI platform for natural language processing and question answering.
-5. Twitter API: Accessing Twitter data for tweet search.
-6. RapidAPI: Integration for accessing Twitter API endpoints.
-7. Fireworks.ai: Sentiment analysis API for analyzing tweet sentiments.
+1. DevRev Platform 
+2. Flask
+3. Next.js 
+4. Chart.js
+5. MongoDB
+6. OpenAI
+7. Twitter API
+8. RapidAPI
+9. Fireworks.ai
 
 ## Setup Instructions
 1. Fork and Clone the Repository.
