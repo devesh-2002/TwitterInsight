@@ -9,6 +9,7 @@ function SearchTweet() {
   const [minLikes, setMinLikes] = useState(0);
   const [minRetweets, setMinRetweets] = useState(0);
   const [startDate, setStartDate] = useState('2022-01-01');
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -16,6 +17,7 @@ function SearchTweet() {
       setMessage('Please enter something');
       return;
     }
+    setLoading(true);
     try {
       const response = await fetch('http://localhost:5000/search', {
         method: 'POST',
@@ -30,8 +32,10 @@ function SearchTweet() {
       const data = await response.json();
       console.log(data); // Log the response
       setTweets(data.tweets);
+      setLoading(false);
     } catch (error) {
       console.error('Error fetching tweets:', error);
+      setLoading(false);
     }
   };
   
@@ -101,6 +105,8 @@ function SearchTweet() {
               </button>
             </form>
             {message && <p className="text-red-500">{message}</p>}
+            {loading && <p className="text-yellow-500">Please wait till response is returned...</p>} {/* Show loading message */}
+
           </div>
         </div>
         <div className="flex-2 mx-5 max-h-100 overflow-y-auto">

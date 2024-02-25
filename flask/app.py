@@ -1,12 +1,22 @@
 from flask import Flask, json, jsonify, request
+from pymongo import MongoClient
 import requests
 from flask_cors import CORS
+import os
 
 app = Flask(__name__)
 CORS(app)
 
-RAPIDAPI_KEY = '9d6e6bf9ddmsh8422d38c504cb8fp1b8683jsn71ba8eefbe72'
-RAPIDAPI_HOST = 'twitter154.p.rapidapi.com'
+mongo_uri = os.getenv("MONGO_URI")
+
+client = MongoClient(mongo_uri)
+db = client.get_database("pymongo")
+collection = db.get_collection("tweets")
+
+RAPIDAPI_KEY = os.getenv("RAPIDAPI_KEY")
+RAPIDAPI_HOST = os.getenv("RAPIDAPI_HOST")
+
+FIREWORKS_API_KEY = os.getenv("FIREWORKS_API_KEY")
 
 def extract_text_from_tweet(tweet):
     return tweet.get('text', '')
@@ -17,7 +27,7 @@ def analyze_sentiment(tweets):
     headers = {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer dIbW2IMpPWB1kguO7XzcFASRQVoyW9GSjZHU36UFvqMCOP0H'
+        'Authorization': f'Bearer {FIREWORKS_API_KEY}'
     }
     payload = {
         'model': 'accounts/fireworks/models/mixtral-8x7b-instruct',
@@ -28,8 +38,8 @@ def analyze_sentiment(tweets):
         'frequency_penalty': 0,
         'temperature': 0.6,
         "messages": [
-        {"role": "system", "content": "Preprocess the data, identify if it is noisy or not. Classify the sentiments of these tweets, Nature of Feedback (feature request/ bug report/ general feedback etc.):"},
-        {"role": "user", "content": text_to_analyze}
+            {"role": "system", "content": "Preprocess the data, identify if it is noisy or not. Classify the sentiments of these tweets (Neutral, Negative, Positive), Nature of Feedback (feature request/ bug report/ general feedback etc.):"},
+            {"role": "user", "content": text_to_analyze}
         ]
     }
     json_payload = json.dumps(payload)
@@ -37,7 +47,6 @@ def analyze_sentiment(tweets):
     if response.status_code == 200:
         result = response.json()
         return result['choices'][0]['message']['content']
-
     else:
         return 'Failed to analyze sentiment'
 
@@ -58,6 +67,17 @@ def identify_feedback(tweet_texts):
         else:
             feedback_types['No Feedback'] += 1
     return feedback_types
+
+def identify_sentiment(bot_responses):
+    sentiment_types = {
+        'Positive': 0,
+        'Neutral': 0,
+        'Negative': 0
+    }
+    for response in bot_responses:
+        sentiment = response.get('Sentiment', 'Neutral')
+        sentiment_types[sentiment] += 1
+    return sentiment_types
 
 @app.route('/search', methods=['POST'])
 def search_tweets():
@@ -98,12 +118,34 @@ def search_tweets():
     response = requests.post(url, headers=headers, json=payload)
     if response.status_code == 200:
         tweets = response.json().get('results', [])
-        sentiment = analyze_sentiment(tweets)
+        bot_responses = []
+        for tweet in tweets:
+            sentiment = analyze_sentiment([tweet])
+            bot_responses.append({'sentiment': sentiment})
         tweet_texts = [extract_text_from_tweet(tweet) for tweet in tweets]
         feedback = identify_feedback(tweet_texts)
+        sentiment = identify_sentiment(bot_responses)
+        collection.insert_one({
+            'tweets': tweet_texts,
+            'sentiment': sentiment,
+            'feedback': feedback,
+            'bot_responses': bot_responses
+        })
         return jsonify({'tweets': tweet_texts, 'sentiment': sentiment, 'feedback': feedback})
     else:
         return jsonify({'error': 'Failed to fetch tweets'}), response.status_code
+
+@app.route('/sentiment', methods=['GET'])
+def get_sentiment():
+    sentiments = collection.find({}, {'_id': 0, 'sentiment': 1})
+    sentiment_list = [sentiment['sentiment'] for sentiment in sentiments]
+    return jsonify(sentiment_list)
+
+@app.route('/feedback', methods=['GET'])
+def get_feedback():
+    feedbacks = collection.find({}, {'_id': 0, 'feedback': 1})
+    feedback_list = [feedback['feedback'] for feedback in feedbacks]
+    return jsonify(feedback_list)
 
 if __name__ == '__main__':
     app.run(debug=True)
