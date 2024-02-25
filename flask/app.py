@@ -3,6 +3,9 @@ from pymongo import MongoClient
 import requests
 from flask_cors import CORS
 import os
+from openai import OpenAI
+
+from langchain.chains import RetrievalQA
 
 app = Flask(__name__)
 CORS(app)
@@ -67,6 +70,35 @@ def identify_feedback(tweet_texts):
         else:
             feedback_types['No Feedback'] += 1
     return feedback_types
+
+
+def answer_question(question, bot_responses):
+    print(bot_responses, "bot responses")
+    openai_api_key = os.getenv("OPENAIAPI_KEY")
+    client = OpenAI(api_key=openai_api_key)
+    max_context_length = 16385
+    truncated_responses = []
+    current_length = len(question)  
+    for response in bot_responses:
+        sentiment_length = len(response)
+        if current_length + sentiment_length <= max_context_length:
+            truncated_responses.append(response)
+            current_length += sentiment_length
+            # print(truncated_responses[0])
+        else:
+            break  
+    messages = [
+        {"role": "assistant", "content": f"Answer only based on : {truncated_responses[0]}."},
+        {"role": "user", "content": question}
+    ]
+    
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=messages
+    )
+    
+    return response.choices[0].message.content
+
 
 def identify_sentiment(bot_responses):
     sentiment_types = {
@@ -146,6 +178,20 @@ def get_feedback():
     feedbacks = collection.find({}, {'_id': 0, 'feedback': 1})
     feedback_list = [feedback['feedback'] for feedback in feedbacks]
     return jsonify(feedback_list)
+
+@app.route('/ask', methods=['POST'])
+def ask_question():
+    data = request.json
+    question = data.get('question', '')
+    
+    document = collection.find_one()
+    print(document.keys())
+    if document and 'bot_responses' in document:
+        bot_responses = document['bot_responses']
+        answer = answer_question(question, bot_responses)
+        return jsonify({'question': question, 'answer': answer})
+    else:
+        return jsonify({'error': 'No bot_responses found in the document or document not found'}), 404
 
 if __name__ == '__main__':
     app.run(debug=True)

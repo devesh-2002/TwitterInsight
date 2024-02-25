@@ -22,6 +22,7 @@ function Dashboards() {
           throw new Error('Failed to fetch sentiment data');
         }
         const data = await response.json();
+        console.log(data, "sentiment data")
         setSentimentData(data);
       } catch (error) {
         console.error('Error fetching sentiment data:', error);
@@ -54,8 +55,8 @@ function Dashboards() {
     if (feedbackData) {
       const ctx = chartRefFeedback.current;
       if (ctx) {
-        const labels = Object.keys(feedbackData[1]);
-        const dataValues = Object.values(feedbackData[1]);
+        const labels = Object.keys(feedbackData[0]);
+        const dataValues = Object.values(feedbackData[0]);
         if (ctx.chart) {
           ctx.chart.destroy();
         }
@@ -100,8 +101,8 @@ function Dashboards() {
     if (sentimentData) {
       const ctx = chartRefSentiment.current;
       if (ctx) {
-        const labels = Object.keys(sentimentData[1]);
-        const dataValues = Object.values(sentimentData[1]);
+        const labels = Object.keys(sentimentData[0]);
+        const dataValues = Object.values(sentimentData[0]);
         if (ctx.chart) {
           ctx.chart.destroy();
         }
@@ -147,15 +148,15 @@ function Dashboards() {
 
   return (
 <div className="flex justify-center my-10">
-  <div className="card w-96 mx-10">
-    <h1 className="card-header">Customer Feedback</h1>
-    <div className="card-body">
+  <div style={{ border: "1px solid #ccc", borderRadius: "8px", padding: "20px", boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)", width: "400px" }} className="card mx-10">
+    <h1 style={{ fontSize: "1.5rem", fontWeight: "bold", marginBottom: "10px" }} className="card-header">Customer Feedback</h1>
+    <div style={{ padding: "20px" }} className="card-body">
       <canvas ref={chartRefFeedback}></canvas>
     </div>
   </div>
-  <div className="card w-96 mx-10">
-    <h1 className="card-header">Sentiment Analysis</h1>
-    <div className="card-body">
+  <div style={{ border: "1px solid #ccc", borderRadius: "8px", padding: "20px", boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)", width: "400px" }} className="card mx-10">
+    <h1 style={{ fontSize: "1.5rem", fontWeight: "bold", marginBottom: "10px" }} className="card-header">Sentiment Analysis</h1>
+    <div style={{ padding: "20px" }} className="card-body">
       <canvas ref={chartRefSentiment}></canvas>
     </div>
   </div>

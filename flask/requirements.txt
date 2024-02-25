@@ -3,3 +3,6 @@ requests
 flask-cors
 pymongo
 python-dotenv
+openai
+langchain
+tiktoken
