@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 
 export default function Home() {
   return (
@@ -13,21 +14,24 @@ export default function Home() {
             />
             <div className="absolute inset-0 bg-black opacity-25 rounded-lg"></div>
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="bg-gray-500 max-w-lg p-8 shadow-md rounded-lg">
+              <div className="bg-gray-500 max-w-lg p-8 shadow-md rounded-lg text-center font-serif">
                 <h1 className="text-3xl font-bold mb-4 text-white">Welcome to TwitterInsight</h1>
-                <p className="text-lg mb-6 text-white">Are you looking to gain valuable insights from your customer feedback data? Look no further! Your Project Name offers a comprehensive solution for analyzing and understanding the voice of your customers.</p>
-                <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full">
-                  Get Started
-                </button>
+                <p className="text-lg mb-6 text-white">
+                  Are you looking to gain valuable insights from your customer feedback data? Look no further!
+                  <br /><br />
+                  <b>TwitterInsight</b> offers a comprehensive solution for analyzing and understanding the voice of your customers.
+                </p>
+                <Link href="/search">
+                  <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full">
+                    Get Started
+                  </button>
+                </Link>
+
               </div>
             </div>
           </div>
         </div>
       </main>
-
-      <footer className="bg-gray-800 text-white text-center py-4">
-        <p>&copy; 2024 Your Company. All rights reserved.</p>
-      </footer>
     </div>
   );
 }

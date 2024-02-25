@@ -84,7 +84,6 @@ def answer_question(question, bot_responses):
         if current_length + sentiment_length <= max_context_length:
             truncated_responses.append(response)
             current_length += sentiment_length
-            # print(truncated_responses[0])
         else:
             break  
     messages = [
@@ -183,8 +182,7 @@ def get_feedback():
 def ask_question():
     data = request.json
     question = data.get('question', '')
-    
-    document = collection.find_one()
+    document = collection.find_one(sort=[('_id', -1)])
     print(document.keys())
     if document and 'bot_responses' in document:
         bot_responses = document['bot_responses']

@@ -6,7 +6,7 @@ export default function Home() {
   const [history, setHistory] = useState([
     {
       role: "assistant",
-      content: "Hello! Ask me legal questions about immigration to the Netherlands.",
+      content: "Hello! Ask me questions about the Twitter Analysis.",
     },
   ]);
   const lastMessageRef = useRef(null);
@@ -26,17 +26,17 @@ export default function Home() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ question: message }), // Send the user's question as JSON data
+      body: JSON.stringify({ question: message }), 
     });
   
     if (response.ok) {
       const data = await response.json();
   
-      // Add bot response to history
       setHistory((oldHistory) => [
         ...oldHistory,
-        { role: "assistant", content: data.answer }, // Assuming the backend returns the answer
+        { role: "assistant", content: data.answer }, 
       ]);
+      setMessage("");
     } else {
       console.error("Failed to get response from the server");
     }
@@ -85,15 +85,16 @@ export default function Home() {
           </div>
           <div className="flex sticky bottom-0 w-full px-6 pb-6 h-24">
             <div className="w-full relative flex items-center">
-              <textarea
+            <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Type a message"
-                className="w-full h-full resize-none rounded-full border border-slate-900/10 bg-white pl-6 pr-24 py-[25px] text-base placeholder:text-slate-400 focus:border-violet-500 focus:outline-none focus:ring-4 focus:ring-violet-500/10 shadow-[0_10px_40px_0px_rgba(0,0,0,0.15)]"
+                className="w-full h-full resize-none rounded-full border border-slate-900/10 bg-white pl-4 pr-20 py-[20px] text-sm placeholder:text-slate-400 text-black focus:border-violet-500 focus:outline-none focus:ring-4 focus:ring-violet-500/10 shadow-[0_10px_40px_0px_rgba(0,0,0,0.15)]"
               />
+
               <button
                 onClick={handleClick}
-                className="flex w-14 h-14 items-center justify-center rounded-full px-3 text-sm bg-violet-600 font-semibold text-white hover:bg-violet-700 active:bg-violet-800 absolute right-2 bottom-2 disabled:bg-violet-100 disabled:text-violet-400"
+                className="flex w-14 h-14 items-center justify-center rounded-full px-3 text-sm bg-violet-600 font-semibold hover:bg-violet-700 active:bg-violet-800 absolute right-2 bottom-2 disabled:bg-violet-100 disabled:text-violet-400"
                 aria-label="Send"
                 disabled={!message}
               >

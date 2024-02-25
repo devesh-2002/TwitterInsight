@@ -10,8 +10,14 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body className={inter.className}><Navbar />{children}</body>
+    <html lang="en" style={{ height: "100%" }}>
+      <body className={inter.className} style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+        <Navbar />
+        <div style={{ flex: 1 }}>{children}</div>
+        <footer className="bg-gray-800 text-white text-center py-4">
+          <p>&copy; 2024 DevRev. All rights reserved.</p>
+        </footer>
+      </body>
     </html>
   );
 }

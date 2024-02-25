@@ -30,7 +30,7 @@ function SearchTweet() {
         throw new Error('Failed to fetch tweets');
       }
       const data = await response.json();
-      console.log(data); // Log the response
+      console.log(data);
       setTweets(data.tweets);
       setLoading(false);
     } catch (error) {
@@ -44,14 +44,14 @@ function SearchTweet() {
       <div className="max-w-screen-md w-full mx-2 flex">
         <div className="flex-2">
           <div className="mb-10 p-6 rounded-lg bg-gray-700 shadow-md">
-            <h2 className="text-xl font-semibold mb-4 text-white">Search by Hashtag</h2>
+            <h2 className="text-xl font-semibold mb-4 text-white">Search by Hashtag or Organization</h2>
             <form onSubmit={handleSubmit}>
               <input
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 className="w-full bg-transparent text-white font-sans font-normal outline-none focus:outline-none placeholder-blue-gray-200 border border-blue-gray-200 focus:border-gray-900 rounded-[7px] px-3 py-2.5"
-                placeholder="Enter hashtag..."
+                placeholder="Enter hashtag or organization..."
               />
               <div className="flex mt-4">
                 <div className="w-1/2 mr-4">
